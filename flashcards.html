@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>一問一答 暗記単語帳</title>
+<style>
+  :root {
+    --bg-color: #f4f6f9;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --accent-color: #3b82f6;
+    --accent-hover: #1d4ed8;
+    --border-color: #e5e7eb;
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  header {
+    width: 100%;
+    max-width: 650px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #1e293b;
+  }
+
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card-bg);
+    padding: 12px 20px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 650px;
+  }
+
+  .mode-toggle {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn {
+    background-color: #e2e8f0;
+    color: #334155;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn.active {
+    background-color: var(--accent-color);
+    color: white;
+  }
+
+  .btn:hover {
+    opacity: 0.9;
+  }
+
+  .progress {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #64748b;
+  }
+
+  /* Card View */
+  .card-container {
+    width: 100%;
+    max-width: 650px;
+    perspective: 1000px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background-color: var(--card-bg);
+    min-height: 260px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+  }
+
+  .card-label {
+    position: absolute;
+    top: 15px;
+    left: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .card-content {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.6;
+    word-break: break-word;
+  }
+
+  .answer-text {
+    color: #2563eb;
+    margin-top: 15px;
+    display: none;
+    font-size: 1.3rem;
+    background: #eff6ff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    width: 100%;
+  }
+
+  .card.show-answer .answer-text {
+    display: block;
+  }
+
+  .card-hint {
+    position: absolute;
+    bottom: 15px;
+    font-size: 0.8rem;
+    color: #cbd5e1;
+  }
+
+  .nav-buttons {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    max-width: 650px;
+    justify-content: space-between;
+  }
+
+  .nav-btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--accent-color);
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: background-color 0.2s;
+  }
+
+  .nav-btn:hover {
+    background-color: var(--accent-hover);
+  }
+
+  .nav-btn:disabled {
+    background-color: #cbd5e1;
+    cursor: not-allowed;
+  }
+
+  /* List View */
+  .list-container {
+    width: 100%;
+    max-width: 650px;
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .list-item {
+    background: var(--card-bg);
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+  }
+
+  .list-question {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 6px;
+  }
+
+  .list-answer {
+    color: #2563eb;
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  /* Hide element helper */
+  .hidden {
+    display: none !important;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>旅行業法・約款 一問一答暗記帳</h1>
+</header>
+
+<div class="controls">
+  <div class="mode-toggle">
+    <button class="btn active" id="btn-card-mode" onclick="switchMode('card')">カード表示</button>
+    <button class="btn" id="btn-list-mode" onclick="switchMode('list')">一覧表示</button>
+  </div>
+  <div class="progress" id="progress-text">1 / 72</div>
+</div>
+
+<!-- Card Mode -->
+<div class="card-container" id="card-view">
+  <div class="card" id="flashcard" onclick="toggleAnswer()">
+    <div class="card-label" id="card-label">QUESTION</div>
+    <div class="card-content" id="card-question"></div>
+    <div class="answer-text" id="card-answer"></div>
+    <div class="card-hint" id="card-hint">タップ / クリックで解答を表示</div>
+  </div>
+</div>
+
+<div class="nav-buttons" id="card-nav">
+  <button class="nav-btn" id="prev-btn" onclick="prevCard()">前へ</button>
+  <button class="nav-btn" onclick="toggleAnswer()">答えを見る</button>
+  <button class="nav-btn" id="next-btn" onclick="nextCard()">次へ</button>
+</div>
+
+<!-- List Mode -->
+<div class="list-container" id="list-view"></div>
+
+<script>
+const data = [["登録事項変更の届出", "その日から30日以内"], ["旅行業の登録期限", "登録の日から起算して5年"], ["旅行業の更新期限", "満了日から2ヶ月前まで"], ["営業保証金の供託", "登録通知をつけた日から14日以内"], ["営業保証金の供託の催促", "7日以上の期間を定める"], ["取引額増加による営業保証金の届出", "事業年度終了日の翌日から起算して100日以内"], ["国土交通省令の改正による営業保証金の届出", "省令施行日から3ヶ月以内"], ["変更登録による営業保証金の届出", "変更に係る事業を開始する日まで"], ["保証社員でなくなった場合の営業保証金の届出", "保証社員でなくなったら日から7日以内"], ["旅行者への還付による営業保証金の補完", "不足額を供託する旨の通知を受けた日から14日以内"], ["取引額の報告", "事業年度終了後100日以内"], ["旅行業権利の継承期限", "登録が抹消された日から6ヶ月以内"], ["旅行業務取扱管理者・旅行サービス手配業務取扱管理者の研修", "5年ごと"], ["旅程管理主任者の実務経験", "旅程管理研修の過程を修了した日の前後1年以内に1回以上、または修了した日から3年以内に2回以上"], ["旅行業登録の取消・業務停止", "6ヶ月以内の期間を定める"], ["事業の未開始または中断による登録の取消", "登録を受けてから1年以内に事業を開始せず、または引き続き1年以上事業を行なっていない"], ["旅行業者の弁済業務保証金分担金の納付", "旅行業協会に加入しようとする日まで"], ["旅行業協会の弁済業務保証金の供託", "納付の日から7日以内"], ["取引額増加による弁済業務保証金分担金の納付", "事業年度終了時の翌日から起算して100日以内"], ["登録変更による弁済業務保証金分担金の納付", "変更登録を受けた日から14日以内"], ["規約変更による弁済業務保証金分担金の納付", "弁済業務規約で定める期日まで"], ["還付充当金の納付", "通知を受けた日から7日以内"], ["還付後、弁済業務保証金不足額の供託（旅行業協会）", "還付をした日から21日以内"], ["旅行開始日の8日前までの申込みに対する確定書面交付期限", "旅行開始日の前日まで"], ["旅行開始日の7日前から当日までの申込みに対する確定書面交付期限", "旅行開始日まで"], ["旅行代金増額の通知期限", "旅行開始日の前日から起算してさかのぼって15日目に当たる日より前"], ["旅行代金減額の通知期限", "通知期限なし"], ["取消日が開始日の20日〜8日前の取消料（国内）", "旅行代金の20%以内"], ["取消日が開始日の10日〜8日前の取消料（国内・日帰り）", "旅行代金の20%以内"], ["取消日が開始日の7日〜2日前までの取消料（国内）", "旅行代金の30%"], ["取消日が開始日の前日の取消料（国内）", "旅行代金の40%"], ["取消日が開始日当日の取消料（国内）", "旅行代金の50%"], ["開始後の取消・無連絡不参加の取消料（国内・海外）", "旅行代金の100%"], ["取消日が開始日の40日〜31日前までの取消料（海外・募集型・ピーク時）", "旅行代金の10%以内"], ["取消日が開始日の30日〜3日前までの取消料（海外）", "旅行代金の20%"], ["取消日が開始日の前々日以降の取消料（海外）", "旅行代金50%"], ["国内旅行（日帰り）の解除の通知期限", "開始日の前日よりさかのぼって3日目に当たる日より前（4日前）まで"], ["国内旅行（宿泊伴う）の解除の通知期限", "開始日の前日よりさかのぼって13日目に当たる日より前（14日前）まで"], ["海外旅行の解除の通知期限", "開始日の前日よりさかのぼって23日目に当たる日より前（24日前）まで"], ["海外旅行（ピーク時）の解除の通知期限", "開始日の前日よりさかのぼって33日目に当たる日より前（34日前）まで"], ["旅行代金の払戻期限（開始前）", "解除の翌日から起算して7日以内"], ["旅行代金の払戻期限（開始後）", "契約書面に記載した旅行終了日の翌日から起算して30日以内"], ["添乗員の業務時間", "原則8時から20時"], ["手荷物以外の損害賠償通知期限（企画・手配）", "損害発生の翌日から起算して2年以内"], ["手荷物の損害賠償金通知期限（国内）", "損害発生の翌日から起算して14日以内"], ["手荷物の損害賠償通知期限（海外）", "損害発生の翌日から起算して21日以内"], ["旅行相談契約の損害賠償通知期限", "損害発生の翌日から起算して6ヶ月以内"], ["変更補償金の支払期限", "旅行終了日の翌日から起算して30日以内"], ["死亡補償金の支払要件", "事故の日から180日以内に死亡"], ["後遺障害保証金の支払要件", "事故の日から180日以内に後遺障害が生じた場合"], ["入院見舞金の支払要件", "事故の日から180日以内に入院した場合"], ["通院見舞金の支払要件", "事故の日から180日以内に3日以上通院した場合"], ["バス会社への運賃・料金の20%以上の支払い", "運送申込書の提出時"], ["バス会社への運送・料金の残額の支払い", "配車日の前日まで"], ["乗車券の再発行（バス）", "配車日の前日"], ["死亡・疾病等不可抗力の場合の払戻可能期間（フェリー）", "通用期間後30日以内"], ["病気や旅客の不可抗力の場合の通用期間延長（フェリー）", "7日間を限度"], ["片道100キロ未満の通用期間（フェリー）", "発売当日限り"], ["片道100キロ以上200キロ未満の通用期間（フェリー）", "2日間"], ["片道200キロ以上400キロ未満の通用期間（フェリー）", "4日間"], ["片道400キロ以上の通用期間（フェリー）", "7日間"], ["回数券の通用期間（フェリー）", "発売当日含め2ヶ月"], ["乗船券紛失後の払戻可能期間", "通用期間経過1年以内"], ["受託手荷物・小荷物の損害賠償請求期間（フェリー）", "引き渡しの日より14日以内"], ["宿泊申込金の限度（宿泊期間3泊以上）", "3日間の基本宿泊料"], ["時間外客室利用の追加料金が室料金の3分の1の超過時間", "3時間まで"], ["時間外客室利用の追加料金が室料金の2分の1の超過時間", "6時間まで"], ["時間外客室利用の追加料金が室料金の全額の超過時間", "6時間以上"], ["忘れ物の保管期間（ホテル・旅館）", "発見日含め7日間"], ["指定のある乗車券類の乗車変更可能期間", "出発時刻前（団体は2時間前）"], ["指定のない乗車券類の乗車変更可能期間", "有効期間内"], ["乗車券類紛失時の払戻請求期間（個人）", "1年以内"]];
+
+let currentIndex = 0;
+let isAnswerShown = false;
+
+function updateCard() {
+  const qEl = document.getElementById('card-question');
+  const aEl = document.getElementById('card-answer');
+  const card = document.getElementById('flashcard');
+  const progress = document.getElementById('progress-text');
+  
+  qEl.textContent = "・" + data[currentIndex][0];
+  aEl.textContent = data[currentIndex][1];
+  
+  card.classList.remove('show-answer');
+  isAnswerShown = false;
+  
+  progress.textContent = `${currentIndex + 1} / ${data.length}`;
+  
+  document.getElementById('prev-btn').disabled = currentIndex === 0;
+  document.getElementById('next-btn').disabled = currentIndex === data.length - 1;
+}
+
+function toggleAnswer() {
+  const card = document.getElementById('flashcard');
+  card.classList.toggle('show-answer');
+  isAnswerShown = !isAnswerShown;
+}
+
+function nextCard() {
+  if (currentIndex < data.length - 1) {
+    currentIndex++;
+    updateCard();
+  }
+}
+
+function prevCard() {
+  if (currentIndex > 0) {
+    currentIndex--;
+    updateCard();
+  }
+}
+
+function switchMode(mode) {
+  const cardView = document.getElementById('card-view');
+  const cardNav = document.getElementById('card-nav');
+  const listView = document.getElementById('list-view');
+  const btnCard = document.getElementById('btn-card-mode');
+  const btnList = document.getElementById('btn-list-mode');
+  
+  if (mode === 'card') {
+    cardView.classList.remove('hidden');
+    cardNav.classList.remove('hidden');
+    listView.style.display = 'none';
+    btnCard.classList.add('active');
+    btnList.classList.remove('active');
+  } else {
+    cardView.classList.add('hidden');
+    cardNav.classList.add('hidden');
+    listView.style.display = 'flex';
+    btnCard.classList.remove('active');
+    btnList.classList.add('active');
+  }
+}
+
+function renderList() {
+  const listView = document.getElementById('list-view');
+  listView.innerHTML = '';
+  data.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'list-item';
+    div.innerHTML = `
+      <div class="list-question">・${item[0]}</div>
+      <div class="list-answer">${item[1]}</div>
+    `;
+    listView.appendChild(div);
+  });
+}
+
+// Key bindings for keyboard control
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('card-view').classList.contains('hidden')) return;
+  if (e.key === 'ArrowRight') {
+    nextCard();
+  } else if (e.key === 'ArrowLeft') {
+    prevCard();
+  } else if (e.key === ' ' || e.key === 'ArrowDown' || e.key === 'Enter') {
+    e.preventDefault();
+    toggleAnswer();
+  }
+});
+
+// Initialize
+updateCard();
+renderList();
+</script>
+</body>
+</html>
