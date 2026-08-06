@@ -278,7 +278,7 @@
     <button class="btn" id="btn-list-mode" onclick="switchMode('list')">一覧</button>
     <button class="btn btn-shuffle" id="btn-shuffle" onclick="toggleShuffle()">🔀 シャッフル</button>
   </div>
-  <div class="progress" id="progress-text">1 / 72</div>
+  <div class="progress" id="progress-text">1 / --</div>
 </div>
 
 <!-- Card Mode -->
@@ -376,8 +376,8 @@ const originalData = [
   ["普通乗車券、自由席特急券、立席特急券の払戻手数料", "220円"],
   ["座席未指定券の払戻手数料", "340円"],
   ["指定席特急券、寝台券、指定席グリーン券、座席指定券の払戻手数料（乗車日の2日前まで）", "340円"],
-  ["定席特急券、寝台券、指定席グリーン券、座席指定券の払戻手数料（前日から出発時刻まで）", "料金の30%（最低340円）"],
-  ["定席特急券、寝台券、指定席グリーン券、座席指定券の払戻手数料（団体・2時間前まで）", "料金の30%（最低340円）"]
+  ["指定席特急券、寝台券、指定席グリーン券、座席指定券の払戻手数料（前日から出発時刻まで）", "料金の30%（最低340円）"],
+  ["指定席特急券、寝台券、指定席グリーン券、座席指定券の払戻手数料（団体・2時間前まで）", "料金の30%（最低340円）"]
 ];
 
 let data = [...originalData];
