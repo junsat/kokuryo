@@ -278,7 +278,8 @@
     <button class="btn" id="btn-list-mode" onclick="switchMode('list')">一覧</button>
     <button class="btn btn-shuffle" id="btn-shuffle" onclick="toggleShuffle()">🔀 シャッフル</button>
   </div>
-  <div class="progress" id="progress-text">1 / --</div>
+  <!-- ここは初期値空欄にしてJavaScript側で自動設定します -->
+  <div class="progress" id="progress-text"></div>
 </div>
 
 <!-- Card Mode -->
@@ -301,6 +302,7 @@
 <div class="list-container" id="list-view"></div>
 
 <script>
+// 配列の長さ（要素数）は自由に増やしたり減らしたりできます
 const originalData = [
   ["登録事項変更の届出", "その日から30日以内"],
   ["旅行業の登録期限", "登録の日から起算して5年"],
@@ -385,6 +387,8 @@ let currentIndex = 0;
 let isShuffled = false;
 
 function updateCard() {
+  if (data.length === 0) return;
+
   const qEl = document.getElementById('card-question');
   const aEl = document.getElementById('card-answer');
   const card = document.getElementById('flashcard');
@@ -394,6 +398,8 @@ function updateCard() {
   aEl.textContent = data[currentIndex][1];
   
   card.classList.remove('show-answer');
+  
+  // data.length を使って自動計算
   progress.textContent = `${currentIndex + 1} / ${data.length}`;
   
   document.getElementById('prev-btn').disabled = currentIndex === 0;
@@ -424,7 +430,6 @@ function toggleShuffle() {
   const btnShuffle = document.getElementById('btn-shuffle');
   
   if (isShuffled) {
-    // フィッシャー–イェーツのシャッフルアルゴリズムでランダム化
     data = [...originalData];
     for (let i = data.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -433,7 +438,6 @@ function toggleShuffle() {
     btnShuffle.classList.add('active');
     btnShuffle.textContent = '🔀 ON';
   } else {
-    // 元の順番に戻す
     data = [...originalData];
     btnShuffle.classList.remove('active');
     btnShuffle.textContent = '🔀 シャッフル';
@@ -480,7 +484,7 @@ function renderList() {
   });
 }
 
-// iPhone用 スワイプ操作によるカードめくり対応
+// iPhone用 スワイプ操作対応
 let touchStartX = 0;
 let touchEndX = 0;
 
@@ -497,9 +501,9 @@ flashcard.addEventListener('touchend', (e) => {
 function handleSwipe() {
   const swipeDistance = touchEndX - touchStartX;
   if (swipeDistance < -50) {
-    nextCard(); // 左スワイプで次へ
+    nextCard();
   } else if (swipeDistance > 50) {
-    prevCard(); // 右スワイプで前へ
+    prevCard();
   }
 }
 
@@ -514,7 +518,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// 初期化
+// 初期化実行
 updateCard();
 renderList();
 </script>
