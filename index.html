@@ -397,8 +397,6 @@ const originalData = [
   ["障がい者割引（JAL・ANA）", "20%引き"],
   ["JAL介護帰省割引", "10%引き"],
   ["JALスカイメイト・ANAユースの対象年齢", "12歳～25歳"],
-  ["", ""],
-  
 ];
 
 let data = [...originalData];
@@ -413,7 +411,7 @@ function updateCard() {
   const card = document.getElementById('flashcard');
   const progress = document.getElementById('progress-text');
   
-  qEl.textContent = "・" + data[currentIndex][0];
+  qEl.textContent = data[currentIndex][0];
   aEl.textContent = data[currentIndex][1];
   
   card.classList.remove('show-answer');
