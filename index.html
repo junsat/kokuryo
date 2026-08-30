@@ -494,7 +494,7 @@ function renderList() {
     const div = document.createElement('div');
     div.className = 'list-item';
     div.innerHTML = `
-      <div class="list-question">・${item[0]}</div>
+      <div class="list-question">${item[0]}</div>
       <div class="list-answer">${item[1]}</div>
     `;
     listView.appendChild(div);
